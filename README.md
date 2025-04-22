@@ -2,6 +2,8 @@
 
 An AI-powered tool that converts customer feedback in JIRA tickets into actionable user stories and PM responses.
 
+![Animation](https://github.com/user-attachments/assets/98494c23-01f9-4ced-8453-c381079f6234)
+
 ## Features
 
 - AI-powered workflow that analyzes feedback and generates structured user stories & PM responses
