@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Feedback Agent</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Product Feedback Agent</h1>
+            <button id="ai-mock-button" class="btn btn-warning">
+                <i class="bi bi-magic"></i> Enter Mocks with AI
+            </button>
+        </div>
+        
+        <!-- Input Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Analyze Feedback</h4>
+            </div>
+            <div class="card-body">
+                <form id="feedback-form">
+                    <div class="mb-3">
+                        <label for="jql" class="form-label">JIRA Query (JQL)</label>
+                        <input type="text" class="form-control" id="jql" 
+                            value="project = UX AND labels = feedback AND created >= -7d" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="max-results" class="form-label">Max Results</label>
+                        <input type="number" class="form-control" id="max-results" value="3" min="1" max="10">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="persist-thread">
+                        <label class="form-check-label" for="persist-thread">Persist Thread</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="post-to-jira">
+                        <label class="form-check-label" for="post-to-jira">Post Results to JIRA</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="create-mock-feedback">
+                        <label class="form-check-label" for="create-mock-feedback">Create Mock Feedback Item</label>
+                    </div>
+                    
+                    <!-- Mock Feedback Items (initially hidden) -->
+                    <div id="mock-feedback-container" class="mb-3 d-none">
+                        <hr>
+                        <h5>Mock Feedback Items</h5>
+                        <div id="mock-items-list">
+                            <!-- Mock feedback items will be added here -->
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="add-mock-item-btn">
+                            <i class="bi bi-plus-circle"></i> Add Another Feedback Item
+                        </button>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="analyze-btn">Analyze Feedback</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Agent Workflow -->
+        <div class="card mb-4 d-none" id="workflow-card">
+            <div class="card-header">
+                <h4>Agent Workflow</h4>
+            </div>
+            <div class="card-body">
+                <div id="workflow-status" class="alert alert-info mb-3 d-none">
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div id="workflow-status-text">Processing...</div>
+                    </div>
+                </div>
+                <div id="workflow-steps" class="workflow-container">
+                    <!-- Steps will be added here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="card mb-4 d-none" id="results-card">
+            <div class="card-header">
+                <h4>Results</h4>
+            </div>
+            <div class="card-body">
+                <div id="results-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="d-none">
+        <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="mt-2 text-light" id="loading-text">Processing...</div>
+    </div>
+
+    <!-- Templates -->
+    <template id="workflow-step-template">
+        <div class="workflow-step">
+            <div class="workflow-step-header">
+                <span class="step-badge"></span>
+                <span class="step-title"></span>
+                <span class="step-time"></span>
+            </div>
+            <div class="workflow-step-content"></div>
+        </div>
+    </template>
+
+    <template id="result-template">
+        <div class="result-item mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="ticket-id mb-0"></h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary view-jira-btn">View in JIRA</button>
+                        <button class="btn btn-sm btn-outline-success post-comment-btn">Post Response</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Original Feedback</h6>
+                        <p class="ticket-summary"></p>
+                        <p class="ticket-description text-muted"></p>
+                    </div>
+                    <div class="mb-3">
+                        <h6>User Story</h6>
+                        <div class="user-story-container">
+                            <p class="user-story-title fw-bold"></p>
+                            <p class="user-story-description"></p>
+                            <div class="user-story-criteria"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h6>PM Response</h6>
+                        <p class="pm-response"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="mock-feedback-item-template">
+        <div class="mock-feedback-item card mb-2">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0">Mock Feedback Item</h6>
+                    <button type="button" class="btn-close remove-mock-item" aria-label="Close"></button>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Summary</label>
+                    <input type="text" class="form-control mock-summary" placeholder="Enter feedback summary">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control mock-description" rows="2" placeholder="Enter detailed feedback"></textarea>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Ticket ID</label>
+                        <input type="text" class="form-control mock-ticket-id" placeholder="UX-123">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Labels</label>
+                        <input type="text" class="form-control mock-labels" placeholder="feedback, ui, etc.">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html> 

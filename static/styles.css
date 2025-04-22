@@ -1,0 +1,228 @@
+/* General styles */
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1000px;
+}
+
+/* AI Mock Button */
+#ai-mock-button {
+    background-color: #FF9800;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 8px 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+#ai-mock-button:hover {
+    background-color: #F57C00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Loading overlay */
+#loading-overlay {
+    position: fixed;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    width: auto;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Mock feedback items styling */
+#mock-feedback-container {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.mock-feedback-item {
+    border-left: 3px solid #198754;
+    transition: all 0.3s ease;
+}
+
+.mock-feedback-item:hover {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+}
+
+#add-mock-item-btn {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#add-mock-item-btn::before {
+    content: "+";
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+/* Workflow visualization */
+.workflow-container {
+    padding: 15px;
+    position: relative;
+    max-height: 600px;
+    overflow-y: auto;
+    background-color: #fcfcfc;
+    border-radius: 4px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}
+
+.workflow-step {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-left: 3px solid #0d6efd;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    position: relative;
+}
+
+.workflow-step::before {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    left: -7.5px;
+    top: 15px;
+}
+
+.workflow-step-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.step-badge {
+    background-color: #0d6efd;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-right: 10px;
+}
+
+.step-title {
+    font-weight: 600;
+    flex-grow: 1;
+}
+
+.step-time {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.workflow-step-content {
+    padding-left: 10px;
+    border-left: 1px dashed #dee2e6;
+    margin-left: 5px;
+}
+
+/* Tool calls styling */
+.tool-call {
+    background-color: #e9ecef;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.tool-call-name {
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.tool-call-args {
+    margin-top: 5px;
+}
+
+.tool-call-result {
+    margin-top: 5px;
+    border-top: 1px dotted #ced4da;
+    padding-top: 5px;
+}
+
+/* User story styling */
+.user-story-criteria {
+    margin-top: 10px;
+}
+
+.criteria-item {
+    margin-bottom: 5px;
+    display: flex;
+    align-items: baseline;
+}
+
+.criteria-item::before {
+    content: "✓";
+    margin-right: 8px;
+    color: #198754;
+    font-weight: bold;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Add or update styling for the thinking step type */
+.step[data-type="thinking"] {
+    border-left: 4px solid #9c27b0;
+    background-color: rgba(156, 39, 176, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.step[data-type="thinking"]::before {
+    content: "🤔";
+    margin-right: 8px;
+}
+
+/* Make sure tool call steps stand out more */
+.step[data-type="tool_call"] {
+    border-left: 4px solid #2196F3;
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+/* Enhance success steps visibility */
+.step[data-type="success"] {
+    border-left: 4px solid #4CAF50;
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+/* Style for completed ticket steps */
+.step[data-type="info"][data-title^="Completed Processing Ticket"] {
+    border-left: 4px solid #FF9800;
+    background-color: rgba(255, 152, 0, 0.1);
+}
+
+/* Make user story and PM response more readable */
+.step[data-title="User Story Created"] .step-content,
+.step[data-title="PM Response Created"] .step-content {
+    white-space: pre-wrap;
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+} 
